@@ -1,0 +1,2276 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>🚢 BALAPAN KAPAL PENJELAJAH - IPAS Kelas 5 SD</title>
+  <style>
+    /* ==========================================================================
+       1. VARIABEL TEMA & RESET DASAR (100% OFFLINE TANPA FONT EKSTERNAL)
+       ========================================================================== */
+    :root {
+      --sky-top: #38bdf8;
+      --sky-bottom: #bae6fd;
+      --sea-light: #0ea5e9;
+      --sea-mid: #0284c7;
+      --sea-deep: #0369a1;
+      --p1-color: #2563eb;
+      --p1-light: #dbeafe;
+      --p1-dark: #1d4ed8;
+      --p1-shadow: #1e3a8a;
+      --p2-color: #dc2626;
+      --p2-light: #fee2e2;
+      --p2-dark: #b91c1c;
+      --p2-shadow: #7f1d1d;
+      --gold: #f59e0b;
+      --gold-light: #fef08a;
+      --gold-dark: #b45309;
+      --success: #16a34a;
+      --success-dark: #15803d;
+      --text-main: #0f172a;
+      --card-bg: #ffffff;
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      font-family: 'Trebuchet MS', 'Comic Sans MS', 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 45%, #7dd3fc 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* ==========================================================================
+       2. KOMPONEN TOMBOL KARTUN 3D RAMAH SENTUH PID
+       ========================================================================== */
+    .btn-3d {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-family: inherit;
+      font-weight: 900;
+      font-size: clamp(1rem, 1.5vw, 1.25rem);
+      padding: 14px 26px;
+      border: 3px solid rgba(255, 255, 255, 0.5);
+      border-radius: 20px;
+      cursor: pointer;
+      color: #ffffff;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, filter 0.15s ease;
+      touch-action: manipulation;
+    }
+
+    .btn-3d:active:not(:disabled) {
+      transform: translateY(5px);
+    }
+
+    .btn-3d:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-green {
+      background: linear-gradient(180deg, #4ade80 0%, #16a34a 100%);
+      box-shadow: 0 6px 0 var(--success-dark), 0 10px 18px rgba(22, 163, 74, 0.35);
+    }
+    .btn-green:active:not(:disabled) { box-shadow: 0 1px 0 var(--success-dark); }
+
+    .btn-blue {
+      background: linear-gradient(180deg, #60a5fa 0%, #2563eb 100%);
+      box-shadow: 0 6px 0 var(--p1-shadow), 0 10px 18px rgba(37, 99, 235, 0.35);
+    }
+    .btn-blue:active:not(:disabled) { box-shadow: 0 1px 0 var(--p1-shadow); }
+
+    .btn-gold {
+      background: linear-gradient(180deg, #fcd34d 0%, #f59e0b 100%);
+      color: #451a03;
+      border-color: #fef08a;
+      box-shadow: 0 6px 0 var(--gold-dark), 0 10px 18px rgba(245, 158, 11, 0.35);
+    }
+    .btn-gold:active:not(:disabled) { box-shadow: 0 1px 0 var(--gold-dark); }
+
+    .btn-red {
+      background: linear-gradient(180deg, #f87171 0%, #dc2626 100%);
+      box-shadow: 0 6px 0 var(--p2-shadow), 0 10px 18px rgba(220, 38, 38, 0.35);
+    }
+    .btn-red:active:not(:disabled) { box-shadow: 0 1px 0 var(--p2-shadow); }
+
+    .btn-sm {
+      padding: 8px 14px;
+      font-size: 0.9rem;
+      border-radius: 14px;
+      border-width: 2px;
+    }
+
+    /* ==========================================================================
+       3. MANAJEMEN LAYAR (MENU, GAMEPLAY, WINNER)
+       ========================================================================== */
+    .screen {
+      display: none;
+      width: 100%;
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 12px 16px;
+      flex: 1;
+    }
+
+    .screen.active {
+      display: flex;
+      flex-direction: column;
+      animation: screenFade 0.35s ease-out;
+    }
+
+    @keyframes screenFade {
+      from { opacity: 0; transform: scale(0.98); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* ==========================================================================
+       4. HALAMAN UTAMA (MENU SCREEN)
+       ========================================================================== */
+    #menu-screen {
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Awan melayang dekoratif di Menu */
+    .bg-cloud {
+      position: absolute;
+      opacity: 0.85;
+      pointer-events: none;
+      animation: cloudDrift 28s linear infinite;
+    }
+    .bg-cloud.c1 { top: 4%; left: -120px; width: 150px; animation-duration: 34s; }
+    .bg-cloud.c2 { top: 14%; left: -180px; width: 110px; animation-duration: 24s; animation-delay: -9s; }
+    .bg-cloud.c3 { top: 7%; left: -140px; width: 130px; animation-duration: 40s; animation-delay: -18s; }
+
+    @keyframes cloudDrift {
+      from { transform: translateX(0); }
+      to { transform: translateX(calc(100vw + 240px)); }
+    }
+
+    .menu-card {
+      background: rgba(255, 255, 255, 0.96);
+      border-radius: var(--radius-xl);
+      border: 5px solid #ffffff;
+      box-shadow: 0 18px 40px rgba(3, 105, 161, 0.25);
+      max-width: 980px;
+      width: 100%;
+      padding: 24px 28px;
+      text-align: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .subject-pill {
+      display: inline-block;
+      background: #fef08a;
+      color: #854d0e;
+      border: 2px solid #facc15;
+      font-weight: 900;
+      padding: 5px 18px;
+      border-radius: 999px;
+      font-size: 0.95rem;
+      margin-bottom: 8px;
+    }
+
+    .main-title {
+      font-size: clamp(2rem, 4.4vw, 3.2rem);
+      font-weight: 900;
+      color: #0369a1;
+      text-shadow: 3px 3px 0 #bae6fd;
+      line-height: 1.1;
+      margin-bottom: 6px;
+    }
+
+    .main-tagline {
+      font-size: clamp(1.05rem, 2vw, 1.4rem);
+      font-weight: 800;
+      color: #d97706;
+      margin-bottom: 16px;
+    }
+
+    /* Ilustrasi Balapan Laut Tropis di Halaman Utama */
+    .menu-banner-art {
+      background: linear-gradient(180deg, #7dd3fc 0%, #38bdf8 55%, #0284c7 55%, #0369a1 100%);
+      border-radius: var(--radius-lg);
+      border: 4px solid #bae6fd;
+      overflow: hidden;
+      margin-bottom: 18px;
+      box-shadow: inset 0 -6px 14px rgba(0, 0, 0, 0.15);
+    }
+
+    .ship-bob {
+      animation: shipBobbing 2.2s ease-in-out infinite;
+    }
+    .ship-bob-delay {
+      animation: shipBobbing 2.2s ease-in-out infinite 0.7s;
+    }
+
+    @keyframes shipBobbing {
+      0%, 100% { transform: translateY(0px) rotate(-1.5deg); }
+      50% { transform: translateY(-5px) rotate(1.5deg); }
+    }
+
+    /* Input Nama Pemain Opsional */
+    .player-setup-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 640px) {
+      .player-setup-grid { grid-template-columns: 1fr; }
+    }
+
+    .player-input-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 16px;
+      border: 3px solid;
+      background: #f8fafc;
+    }
+
+    .player-input-box.p1 {
+      border-color: var(--p1-color);
+      background: var(--p1-light);
+    }
+
+    .player-input-box.p2 {
+      border-color: var(--p2-color);
+      background: var(--p2-light);
+    }
+
+    .player-input-box label {
+      font-weight: 900;
+      font-size: 0.95rem;
+      white-space: nowrap;
+    }
+
+    .player-input-box.p1 label { color: var(--p1-dark); }
+    .player-input-box.p2 label { color: var(--p2-dark); }
+
+    .player-input-box input {
+      width: 100%;
+      border: 2px solid rgba(15, 23, 42, 0.15);
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--text-main);
+      background: #ffffff;
+    }
+
+    .menu-buttons-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 14px;
+    }
+
+    .btn-play-hero {
+      font-size: clamp(1.2rem, 2.2vw, 1.5rem);
+      padding: 16px 36px;
+    }
+
+    /* ==========================================================================
+       5. MODAL POPUP (PETUNJUK & ATURAN PERMAINAN)
+       ========================================================================== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.68);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 100;
+      backdrop-filter: blur(3px);
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+      animation: screenFade 0.2s ease-out;
+    }
+
+    .modal-box {
+      background: #ffffff;
+      border-radius: var(--radius-xl);
+      border: 5px solid #38bdf8;
+      max-width: 720px;
+      width: 100%;
+      max-height: 88vh;
+      overflow-y: auto;
+      padding: 24px 28px;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.35);
+      text-align: left;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 3px solid #e0f2fe;
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+
+    .modal-header h2 {
+      font-size: 1.5rem;
+      color: #0369a1;
+      font-weight: 900;
+    }
+
+    .modal-section {
+      background: #f0f9ff;
+      border: 2px solid #bae6fd;
+      border-radius: 16px;
+      padding: 14px 16px;
+      margin-bottom: 14px;
+    }
+
+    .modal-section h3 {
+      color: #0284c7;
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+    }
+
+    .modal-list {
+      padding-left: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-weight: 700;
+      color: #1e293b;
+      line-height: 1.45;
+    }
+
+    /* ==========================================================================
+       6. ARENA PERMAINAN UTAMA (GAMEPLAY SCREEN - OPTIMASI PID 100VH)
+       ========================================================================== */
+    #game-screen {
+      gap: 10px;
+      justify-content: space-between;
+      min-height: 100vh;
+    }
+
+    /* Papan Skor & Timer Permanen di Bagian Atas */
+    .scoreboard-top {
+      display: grid;
+      grid-template-columns: 1fr 1.25fr 1fr;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    @media (max-width: 900px) {
+      .scoreboard-top { grid-template-columns: 1fr; }
+    }
+
+    .player-hud-card {
+      background: #ffffff;
+      border-radius: var(--radius-lg);
+      padding: 10px 14px;
+      border: 4px solid;
+      box-shadow: 0 6px 14px rgba(15, 23, 42, 0.12);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .player-hud-card.p1 { border-color: var(--p1-color); }
+    .player-hud-card.p2 { border-color: var(--p2-color); }
+
+    .player-hud-card.active-turn.p1 {
+      background: linear-gradient(135deg, #ffffff 0%, #dbeafe 100%);
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.35), 0 10px 20px rgba(37, 99, 235, 0.25);
+      transform: scale(1.02);
+    }
+
+    .player-hud-card.active-turn.p2 {
+      background: linear-gradient(135deg, #ffffff 0%, #fee2e2 100%);
+      box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.35), 0 10px 20px rgba(220, 38, 38, 0.25);
+      transform: scale(1.02);
+    }
+
+    .hud-player-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .hud-player-name {
+      font-weight: 900;
+      font-size: 1.05rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .p1 .hud-player-name { color: var(--p1-dark); }
+    .p2 .hud-player-name { color: var(--p2-dark); }
+
+    .pos-badge {
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-weight: 900;
+      font-size: 0.9rem;
+      color: #ffffff;
+    }
+    .p1 .pos-badge { background: var(--p1-color); }
+    .p2 .pos-badge { background: var(--p2-color); }
+
+    .hud-stats-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: #334155;
+      background: rgba(241, 245, 249, 0.85);
+      padding: 5px 10px;
+      border-radius: 10px;
+    }
+
+    /* Kartu Kontrol Tengah (Ronde, Giliran, Timer 10 Detik) */
+    .center-status-card {
+      background: #ffffff;
+      border-radius: var(--radius-lg);
+      padding: 10px 14px;
+      border: 4px solid #38bdf8;
+      box-shadow: 0 6px 14px rgba(15, 23, 42, 0.12);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .round-tools-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .round-pill {
+      background: #e0f2fe;
+      color: #0369a1;
+      font-weight: 900;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      border: 2px solid #7dd3fc;
+    }
+
+    .turn-banner {
+      text-align: center;
+      font-weight: 900;
+      font-size: clamp(0.95rem, 1.3vw, 1.15rem);
+      padding: 6px 12px;
+      border-radius: 12px;
+      color: #ffffff;
+      letter-spacing: 0.4px;
+      transition: background-color 0.25s ease;
+    }
+
+    .turn-banner.p1 { background: linear-gradient(90deg, #1d4ed8, #3b82f6, #1d4ed8); }
+    .turn-banner.p2 { background: linear-gradient(90deg, #b91c1c, #ef4444, #b91c1c); }
+
+    .timer-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .timer-track {
+      flex: 1;
+      height: 16px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 2px solid #cbd5e1;
+    }
+
+    .timer-fill {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, #22c55e, #84cc16);
+      transition: width 0.2s linear, background 0.3s ease;
+    }
+
+    .timer-fill.warning {
+      background: linear-gradient(90deg, #f59e0b, #fbbf24);
+    }
+
+    .timer-fill.danger {
+      background: linear-gradient(90deg, #dc2626, #f87171);
+    }
+
+    .timer-digits {
+      font-weight: 900;
+      font-size: 1.15rem;
+      min-width: 48px;
+      text-align: right;
+      color: #0f172a;
+    }
+
+    .timer-digits.danger-pulse {
+      color: #dc2626;
+      animation: pulseText 0.5s infinite alternate;
+    }
+
+    @keyframes pulseText {
+      from { transform: scale(1); }
+      to { transform: scale(1.18); }
+    }
+
+    /* ==========================================================================
+       7. ARENA LINTASAN BALAPAN LAUT HORIZONTAL (10 POS)
+       ========================================================================== */
+    .race-arena-wrapper {
+      background: linear-gradient(180deg, #bae6fd 0%, #e0f2fe 26%, #38bdf8 26%, #0284c7 63%, #0369a1 100%);
+      border-radius: var(--radius-xl);
+      border: 5px solid #ffffff;
+      box-shadow: 0 10px 25px rgba(3, 105, 161, 0.22);
+      position: relative;
+      overflow: hidden;
+      padding: 8px 12px 10px;
+    }
+
+    /* Dekorasi Langit, Pulau & Mercusuar di Atas Lintasan */
+    .arena-scenery {
+      height: 54px;
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding: 0 12px;
+      pointer-events: none;
+    }
+
+    /* Jalur Lintasan Laut */
+    .lanes-container {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 6px 0;
+    }
+
+    .race-lane {
+      height: 76px;
+      border-radius: 16px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      padding: 0 46px;
+      border: 2px dashed rgba(255, 255, 255, 0.45);
+    }
+
+    .race-lane.lane-p1 {
+      background: rgba(37, 99, 235, 0.18);
+    }
+
+    .race-lane.lane-p2 {
+      background: rgba(220, 38, 38, 0.18);
+    }
+
+    /* Garis START & FINISH Vertikal */
+    .start-line-marker {
+      position: absolute;
+      left: 44px;
+      top: 0;
+      bottom: 0;
+      width: 6px;
+      background: repeating-linear-gradient(
+        0deg,
+        #ffffff 0px,
+        #ffffff 8px,
+        #0f172a 8px,
+        #0f172a 16px
+      );
+      z-index: 1;
+    }
+
+    .finish-line-marker {
+      position: absolute;
+      right: 44px;
+      top: 0;
+      bottom: 0;
+      width: 10px;
+      background: repeating-conic-gradient(#0f172a 0% 25%, #ffffff 0% 50%) 50% / 10px 10px;
+      border-left: 2px solid #facc15;
+      border-right: 2px solid #facc15;
+      z-index: 1;
+    }
+
+    /* Titik-titik Pos Perjalanan 0 sampai 10 */
+    .checkpoints-track {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 2;
+    }
+
+    .checkpoint-node {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.85);
+      border: 3px solid #0284c7;
+      color: #0369a1;
+      font-weight: 900;
+      font-size: 0.78rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+      position: relative;
+    }
+
+    .checkpoint-node.start-node {
+      background: #fef08a;
+      border-color: #ca8a04;
+      color: #713f12;
+      font-size: 0.68rem;
+      width: 34px;
+      height: 34px;
+    }
+
+    .checkpoint-node.finish-node {
+      background: #facc15;
+      border-color: #b45309;
+      color: #451a03;
+      width: 34px;
+      height: 34px;
+      font-size: 0.9rem;
+    }
+
+    .checkpoint-node.passed-p1 {
+      background: #93c5fd;
+      border-color: #1d4ed8;
+      color: #1e3a8a;
+    }
+
+    .checkpoint-node.passed-p2 {
+      background: #fca5a5;
+      border-color: #b91c1c;
+      color: #7f1d1d;
+    }
+
+    /* Wadah Kapal Bergerak Mulus di Atas Lintasan */
+    .ship-runner {
+      position: absolute;
+      top: 50%;
+      left: 0%;
+      transform: translate(-50%, -56%);
+      width: 78px;
+      height: 58px;
+      z-index: 10;
+      transition: left 0.75s cubic-bezier(0.34, 1.56, 0.64, 1);
+      pointer-events: none;
+    }
+
+    /* Efek Buih Ombak saat Kapal Melaju */
+    .wake-splash {
+      position: absolute;
+      left: -14px;
+      bottom: 6px;
+      width: 26px;
+      height: 12px;
+      background: radial-gradient(circle, #ffffff 30%, transparent 70%);
+      border-radius: 50%;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .ship-runner.boosting .wake-splash {
+      opacity: 1;
+      animation: splashBurst 0.6s ease-out;
+    }
+
+    .ship-runner.boosting {
+      filter: drop-shadow(0 0 12px #fef08a);
+    }
+
+    .ship-runner.shake {
+      animation: shipShake 0.45s ease-in-out;
+    }
+
+    @keyframes splashBurst {
+      0% { transform: scale(0.5); opacity: 1; }
+      100% { transform: scale(2.2) translateX(-14px); opacity: 0; }
+    }
+
+    @keyframes shipShake {
+      0%, 100% { transform: translate(-50%, -56%) rotate(0deg); }
+      25% { transform: translate(-50%, -56%) rotate(-9deg); }
+      75% { transform: translate(-50%, -56%) rotate(9deg); }
+    }
+
+    /* ==========================================================================
+       8. PANEL PERTANYAAN & 4 PILIHAN JAWABAN BESAR (GRID 2X2)
+       ========================================================================== */
+    .quiz-panel {
+      background: #ffffff;
+      border-radius: var(--radius-xl);
+      border: 5px solid var(--p1-color);
+      padding: 16px 20px;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.14);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex: 1;
+      justify-content: space-between;
+      position: relative;
+      transition: border-color 0.3s ease;
+    }
+
+    .quiz-panel.turn-p1 { border-color: var(--p1-color); }
+    .quiz-panel.turn-p2 { border-color: var(--p2-color); }
+    .quiz-panel.golden-mode {
+      border-color: var(--gold);
+      background: linear-gradient(180deg, #fffbeb 0%, #ffffff 35%);
+      box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.3), 0 12px 26px rgba(245, 158, 11, 0.25);
+    }
+
+    .golden-badge {
+      display: none;
+      background: linear-gradient(90deg, #b45309, #f59e0b, #b45309);
+      color: #ffffff;
+      text-align: center;
+      font-weight: 900;
+      padding: 6px 16px;
+      border-radius: 12px;
+      font-size: 1rem;
+      letter-spacing: 0.6px;
+      animation: pulseGlow 1.4s infinite;
+    }
+
+    .golden-badge.show {
+      display: block;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.015); }
+    }
+
+    .question-box {
+      background: #f8fafc;
+      border: 3px solid #cbd5e1;
+      border-radius: 16px;
+      padding: 14px 18px;
+      font-size: clamp(1.15rem, 1.85vw, 1.5rem);
+      font-weight: 900;
+      color: #0f172a;
+      line-height: 1.35;
+      text-align: center;
+    }
+
+    .options-grid-2x2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media (max-width: 720px) {
+      .options-grid-2x2 { grid-template-columns: 1fr; }
+    }
+
+    .answer-btn {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: #f1f5f9;
+      border: 3px solid #94a3b8;
+      border-radius: 18px;
+      padding: 14px 18px;
+      font-family: inherit;
+      font-size: clamp(1.05rem, 1.5vw, 1.3rem);
+      font-weight: 800;
+      color: #0f172a;
+      text-align: left;
+      cursor: pointer;
+      box-shadow: 0 5px 0 #cbd5e1;
+      transition: transform 0.1s ease, background 0.15s ease, border-color 0.15s ease;
+      touch-action: manipulation;
+    }
+
+    .quiz-panel.turn-p1 .answer-btn:hover:not(:disabled) {
+      background: #eff6ff;
+      border-color: var(--p1-color);
+    }
+
+    .quiz-panel.turn-p2 .answer-btn:hover:not(:disabled) {
+      background: #fef2f2;
+      border-color: var(--p2-color);
+    }
+
+    .answer-btn:active:not(:disabled) {
+      transform: translateY(4px);
+      box-shadow: 0 1px 0 #cbd5e1;
+    }
+
+    .answer-btn:disabled {
+      cursor: default;
+    }
+
+    .opt-letter {
+      width: 40px;
+      height: 40px;
+      flex-shrink: 0;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 1.2rem;
+      color: #ffffff;
+      background: #475569;
+    }
+
+    .quiz-panel.turn-p1 .opt-letter { background: var(--p1-color); }
+    .quiz-panel.turn-p2 .opt-letter { background: var(--p2-color); }
+
+    /* Status Benar & Salah pada Tombol Jawaban */
+    .answer-btn.correct-choice {
+      background: #dcfce7 !important;
+      border-color: #16a34a !important;
+      box-shadow: 0 5px 0 #15803d !important;
+      color: #14532d !important;
+    }
+    .answer-btn.correct-choice .opt-letter {
+      background: #16a34a !important;
+    }
+
+    .answer-btn.wrong-choice {
+      background: #ffe4e6 !important;
+      border-color: #e11d48 !important;
+      box-shadow: 0 5px 0 #be123c !important;
+      color: #881337 !important;
+    }
+    .answer-btn.wrong-choice .opt-letter {
+      background: #e11d48 !important;
+    }
+
+    /* Bar Umpan Balik Jawaban */
+    .feedback-strip {
+      min-height: 44px;
+      border-radius: 14px;
+      padding: 10px 16px;
+      font-weight: 900;
+      font-size: 1.08rem;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f1f5f9;
+      color: #475569;
+      border: 2px solid #e2e8f0;
+    }
+
+    .feedback-strip.success {
+      background: #dcfce7;
+      border-color: #22c55e;
+      color: #14532d;
+    }
+
+    .feedback-strip.error {
+      background: #ffe4e6;
+      border-color: #f43f5e;
+      color: #881337;
+    }
+
+    /* Notifikasi Overlay Transisi Giliran (Agar 2 Siswa di Depan PID Tidak Salah Giliran) */
+    .turn-toast-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 80;
+      pointer-events: none;
+    }
+
+    .turn-toast-overlay.show {
+      display: flex;
+      animation: fadeInOut 1.15s ease-in-out forwards;
+    }
+
+    @keyframes fadeInOut {
+      0% { opacity: 0; transform: scale(0.85); }
+      20% { opacity: 1; transform: scale(1.03); }
+      80% { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: scale(0.95); }
+    }
+
+    .turn-toast-box {
+      padding: 24px 44px;
+      border-radius: 28px;
+      border: 6px solid #ffffff;
+      color: #ffffff;
+      font-size: clamp(1.5rem, 3vw, 2.3rem);
+      font-weight: 900;
+      text-align: center;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.4);
+    }
+
+    .turn-toast-box.p1 { background: linear-gradient(135deg, #2563eb, #1d4ed8); }
+    .turn-toast-box.p2 { background: linear-gradient(135deg, #dc2626, #b91c1c); }
+
+    /* ==========================================================================
+       9. HALAMAN PEMENANG (WINNER SCREEN)
+       ========================================================================== */
+    #winner-screen {
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    .winner-card {
+      background: #ffffff;
+      border-radius: var(--radius-xl);
+      border: 6px solid #facc15;
+      box-shadow: 0 20px 50px rgba(3, 105, 161, 0.3);
+      max-width: 880px;
+      width: 100%;
+      padding: 28px 26px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .winner-headline {
+      font-size: clamp(1.6rem, 3.4vw, 2.5rem);
+      font-weight: 900;
+      color: #b45309;
+      margin-bottom: 10px;
+      line-height: 1.2;
+    }
+
+    .champion-banner {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 30px;
+      border-radius: 999px;
+      font-size: clamp(1.25rem, 2.4vw, 1.75rem);
+      font-weight: 900;
+      color: #ffffff;
+      margin: 8px 0 20px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .champion-banner.p1 { background: linear-gradient(90deg, #1d4ed8, #3b82f6); }
+    .champion-banner.p2 { background: linear-gradient(90deg, #b91c1c, #ef4444); }
+    .champion-banner.draw { background: linear-gradient(90deg, #0284c7, #16a34a); }
+
+    .final-comparison-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+      text-align: left;
+    }
+
+    @media (max-width: 680px) {
+      .final-comparison-grid { grid-template-columns: 1fr; }
+    }
+
+    .final-player-box {
+      border-radius: 20px;
+      padding: 16px 20px;
+      border: 4px solid;
+    }
+
+    .final-player-box.p1 {
+      background: #eff6ff;
+      border-color: var(--p1-color);
+    }
+
+    .final-player-box.p2 {
+      background: #fef2f2;
+      border-color: var(--p2-color);
+    }
+
+    .final-player-box h3 {
+      font-size: 1.25rem;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .final-stat-line {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px dashed rgba(15, 23, 42, 0.15);
+      font-weight: 800;
+      font-size: 1rem;
+    }
+
+    #confetti-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 999;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Kanvas Konfeti Perayaan -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- Overlay Notifikasi Pergantian Giliran -->
+  <div id="turn-toast-overlay" class="turn-toast-overlay">
+    <div id="turn-toast-box" class="turn-toast-box p1">
+      ⛵ GILIRAN PEMAIN 1 (BIRU)!
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       1. HALAMAN UTAMA (MENU SCREEN)
+       ======================================================================== -->
+  <section id="menu-screen" class="screen active">
+    <!-- Awan Kartun Dekoratif -->
+    <svg class="bg-cloud c1" viewBox="0 0 120 60"><path d="M25,50 H95 A20,20 0 0,0 95,12 A28,28 0 0,0 42,10 A22,22 0 0,0 25,50 Z" fill="#ffffff"/></svg>
+    <svg class="bg-cloud c2" viewBox="0 0 120 60"><path d="M25,50 H95 A20,20 0 0,0 95,12 A28,28 0 0,0 42,10 A22,22 0 0,0 25,50 Z" fill="#ffffff"/></svg>
+    <svg class="bg-cloud c3" viewBox="0 0 120 60"><path d="M25,50 H95 A20,20 0 0,0 95,12 A28,28 0 0,0 42,10 A22,22 0 0,0 25,50 Z" fill="#ffffff"/></svg>
+
+    <div class="menu-card">
+      <div class="subject-pill">📚 IPAS KELAS 5 SD • LETAK GEOGRAFIS NEGARA INDONESIA</div>
+      <h1 class="main-title">🚢 BALAPAN KAPAL PENJELAJAH</h1>
+      <p class="main-tagline">"Jawab Pertanyaan, Pacu Kapalmu, Jadilah Pemenang!"</p>
+
+      <!-- Ilustrasi SVG Kartun Dua Kapal Berlomba & Pulau-Pulau Indonesia -->
+      <div class="menu-banner-art">
+        <svg viewBox="0 0 860 190" width="100%" style="display: block; max-height: 185px;">
+          <!-- Matahari Ceria -->
+          <circle cx="75" cy="42" r="24" fill="#fde047" />
+          <circle cx="75" cy="42" r="32" fill="#fde047" opacity="0.28" />
+
+          <!-- Pulau-Pulau Tropis Indonesia di Latar Belakang -->
+          <!-- Pulau Sumatra & Jawa -->
+          <path d="M140,105 Q190,72 250,105 Z" fill="#22c55e" stroke="#15803d" stroke-width="2.5" />
+          <path d="M235,105 Q295,68 355,105 Z" fill="#4ade80" stroke="#15803d" stroke-width="2.5" />
+          <!-- Pohon Kelapa -->
+          <path d="M210,92 Q205,72 214,58" fill="none" stroke="#78350f" stroke-width="4" stroke-linecap="round" />
+          <path d="M214,58 Q198,52 192,64 M214,58 Q228,50 234,62 M214,58 Q208,42 220,44" fill="none" stroke="#15803d" stroke-width="3" stroke-linecap="round" />
+
+          <!-- Pulau Kalimantan & Sulawesi -->
+          <path d="M460,105 Q520,65 585,105 Z" fill="#22c55e" stroke="#15803d" stroke-width="2.5" />
+          <path d="M565,105 Q615,74 665,105 Z" fill="#4ade80" stroke="#15803d" stroke-width="2.5" />
+
+          <!-- Mercusuar Pulau Papua di Garis Finish -->
+          <path d="M725,105 Q780,74 835,105 Z" fill="#22c55e" stroke="#15803d" stroke-width="2.5" />
+          <polygon points="776,84 792,84 788,42 780,42" fill="#ffffff" stroke="#b91c1c" stroke-width="2" />
+          <rect x="778" y="55" width="12" height="9" fill="#ef4444" />
+          <rect x="777" y="71" width="14" height="9" fill="#ef4444" />
+          <circle cx="784" cy="36" r="6" fill="#fef08a" />
+
+          <!-- Gelombang Ombak Laut -->
+          <path d="M0,105 Q30,98 60,105 T120,105 T180,105 T240,105 T300,105 T360,105 T420,105 T480,105 T540,105 T600,105 T660,105 T720,105 T780,105 T840,105 T900,105" fill="none" stroke="#bae6fd" stroke-width="3" />
+
+          <!-- KAPAL 1: KAPAL PENJELAJAH BIRU -->
+          <g class="ship-bob" transform="translate(260, 102)">
+            <path d="M-48,14 L48,14 L34,34 L-36,34 Z" fill="#2563eb" stroke="#1e3a8a" stroke-width="2.5" />
+            <rect x="-38" y="18" width="74" height="5" fill="#93c5fd" />
+            <rect x="-6" y="-26" width="5" height="40" fill="#78350f" />
+            <path d="M-2,-24 L34,-6 L-2,8 Z" fill="#ffffff" stroke="#1d4ed8" stroke-width="2" />
+            <path d="M-32,-16 L-8,-16 L-8,-4 L-32,-4 Z" fill="#facc15" />
+            <circle cx="-16" cy="25" r="3.5" fill="#fef08a" />
+            <circle cx="0" cy="25" r="3.5" fill="#fef08a" />
+            <circle cx="16" cy="25" r="3.5" fill="#fef08a" />
+          </g>
+
+          <!-- KAPAL 2: KAPAL PENJELAJAH MERAH -->
+          <g class="ship-bob-delay" transform="translate(490, 128)">
+            <path d="M-48,14 L48,14 L34,34 L-36,34 Z" fill="#dc2626" stroke="#7f1d1d" stroke-width="2.5" />
+            <rect x="-38" y="18" width="74" height="5" fill="#fca5a5" />
+            <rect x="-6" y="-26" width="5" height="40" fill="#78350f" />
+            <path d="M-2,-24 L34,-6 L-2,8 Z" fill="#ffffff" stroke="#b91c1c" stroke-width="2" />
+            <path d="M-32,-16 L-8,-16 L-8,-4 L-32,-4 Z" fill="#38bdf8" />
+            <circle cx="-16" cy="25" r="3.5" fill="#fef08a" />
+            <circle cx="0" cy="25" r="3.5" fill="#fef08a" />
+            <circle cx="16" cy="25" r="3.5" fill="#fef08a" />
+          </g>
+        </svg>
+      </div>
+
+      <!-- Pengaturan Nama 2 Pemain -->
+      <div class="player-setup-grid">
+        <div class="player-input-box p1">
+          <label for="input-p1-name">🔵 PEMAIN 1:</label>
+          <input type="text" id="input-p1-name" value="Kapal Biru" maxlength="18" placeholder="Nama Pemain 1" />
+        </div>
+        <div class="player-input-box p2">
+          <label for="input-p2-name">🔴 PEMAIN 2:</label>
+          <input type="text" id="input-p2-name" value="Kapal Merah" maxlength="18" placeholder="Nama Pemain 2" />
+        </div>
+      </div>
+
+      <!-- 3 Tombol Utama Sesuai Spesifikasi -->
+      <div class="menu-buttons-row">
+        <button id="btn-open-guide" class="btn-3d btn-blue">📖 PETUNJUK</button>
+        <button id="btn-start-race" class="btn-3d btn-green btn-play-hero">🚀 MULAI PERMAINAN</button>
+        <button id="btn-open-rules" class="btn-3d btn-gold">📜 ATURAN PERMAINAN</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       MODAL PETUNJUK (TUJUAN PEMBELAJARAN & CARA BERMAIN)
+       ======================================================================== -->
+  <div id="modal-guide" class="modal-backdrop">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2>📖 PETUNJUK & TUJUAN PEMBELAJARAN</h2>
+        <button class="btn-3d btn-red btn-sm" onclick="closeModal('modal-guide')">✖ TUTUP</button>
+      </div>
+      <div class="modal-section">
+        <h3>🎯 Tujuan Pembelajaran (IPAS Kelas 5 SD):</h3>
+        <ol class="modal-list">
+          <li>Menjelaskan letak geografis Negara Indonesia.</li>
+          <li>Menyebutkan dua benua yang mengapit Indonesia (Benua Asia dan Benua Australia).</li>
+          <li>Menyebutkan dua samudra yang mengapit Indonesia (Samudra Hindia dan Samudra Pasifik).</li>
+          <li>Mengidentifikasi negara-negara tetangga yang berbatasan dengan Indonesia.</li>
+          <li>Memahami posisi strategis Indonesia berdasarkan letak geografisnya.</li>
+        </ol>
+      </div>
+      <div class="modal-section">
+        <h3>🕹️ Cara Bermain di Layar / Papan Interaktif Digital (PID):</h3>
+        <ul class="modal-list">
+          <li>Permainan dimainkan oleh <strong>2 siswa</strong> secara bergantian (Tim Biru vs Tim Merah).</li>
+          <li>Perhatikan indikator giliran di bagian atas layar sebelum menyentuh jawaban.</li>
+          <li>Sentuh salah satu dari 4 tombol pilihan jawaban (<strong>A, B, C, atau D</strong>) sebelum waktu 10 detik habis!</li>
+          <li>Setiap jawaban benar akan memajukan kapal menuju garis <strong>FINISH (Pos 10)</strong>.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL ATURAN PERMAINAN
+       ======================================================================== -->
+  <div id="modal-rules" class="modal-backdrop">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2>📜 ATURAN BALAPAN KAPAL PENJELAJAH</h2>
+        <button class="btn-3d btn-red btn-sm" onclick="closeModal('modal-rules')">✖ TUTUP</button>
+      </div>
+      <div class="modal-section">
+        <h3>⚖️ Sistem Giliran Adil & Langkah Kapal:</h3>
+        <ul class="modal-list">
+          <li><strong>Start & Finish:</strong> Kedua kapal mulai dari Pos 0 (START) dan berlomba mencapai Pos 10 (FINISH).</li>
+          <li><strong>Pergiliran Adil:</strong> Setiap ronde terdiri dari 1 pertanyaan untuk Pemain 1 (Biru) dan 1 pertanyaan untuk Pemain 2 (Merah). Kedua pemain selalu mendapat jumlah kesempatan yang sama!</li>
+          <li><strong>Waktu Jawab:</strong> Setiap giliran memiliki batas waktu <strong>10 detik</strong>.</li>
+          <li><strong>Jawaban Benar:</strong> Kapal maju <strong>1 pos</strong>.</li>
+          <li><strong>Jawaban Salah / Waktu Habis:</strong> Kapal diam di tempat (0 langkah).</li>
+        </ul>
+      </div>
+      <div class="modal-section" style="background: #fffbeb; border-color: #f59e0b;">
+        <h3 style="color: #b45309;">🌟 Babak Final (GOLDEN QUESTION!):</h3>
+        <ul class="modal-list">
+          <li>Ketika salah satu atau kedua kapal sudah mendekati garis FINISH (Pos 8 atau Pos 9), babak berubah menjadi <strong>GOLDEN QUESTION!</strong></li>
+          <li>Pada babak ini, setiap jawaban benar bernilai <strong>2 langkah pos</strong>!</li>
+          <li>Jika kedua pemain mencapai garis FINISH pada ronde yang sama, pemenang ditentukan berdasarkan <strong>jumlah jawaban benar terbanyak</strong>, lalu <strong>total waktu menjawab tercepat</strong>.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       2. ARENA PERMAINAN UTAMA (GAMEPLAY SCREEN)
+       ======================================================================== -->
+  <section id="game-screen" class="screen">
+    <!-- Papan Skor Permanen di Bagian Atas -->
+    <header class="scoreboard-top">
+      <!-- Kartu Skor Pemain 1 (Biru) -->
+      <div id="hud-card-p1" class="player-hud-card p1 active-turn">
+        <div class="hud-player-header">
+          <div class="hud-player-name">🔵 <span id="hud-name-p1">Kapal Biru</span></div>
+          <div class="pos-badge" id="hud-pos-p1">Pos 0 / 10</div>
+        </div>
+        <div class="hud-stats-row">
+          <span>✅ Benar: <strong id="hud-correct-p1">0</strong></span>
+          <span>❌ Salah: <strong id="hud-wrong-p1">0</strong></span>
+          <span>⏱️ Waktu: <strong id="hud-time-p1">0.0d</strong></span>
+        </div>
+      </div>
+
+      <!-- Indikator Tengah: Ronde, Giliran, Timer 10 Detik -->
+      <div class="center-status-card">
+        <div class="round-tools-bar">
+          <span class="round-pill" id="hud-round">RONDE 1</span>
+          <div style="display: flex; gap: 6px;">
+            <button id="btn-mute" class="btn-3d btn-blue btn-sm" title="Suara">🔊</button>
+            <button id="btn-restart-ingame" class="btn-3d btn-gold btn-sm" title="Ulangi Balapan">🔄 ULANG</button>
+            <button id="btn-home-ingame" class="btn-3d btn-red btn-sm" title="Kembali ke Menu">🏠 MENU</button>
+          </div>
+        </div>
+
+        <div id="turn-banner" class="turn-banner p1">
+          ⛵ GILIRAN: KAPAL BIRU
+        </div>
+
+        <div class="timer-wrapper">
+          <div class="timer-track">
+            <div id="timer-fill" class="timer-fill"></div>
+          </div>
+          <div id="timer-digits" class="timer-digits">10s</div>
+        </div>
+      </div>
+
+      <!-- Kartu Skor Pemain 2 (Merah) -->
+      <div id="hud-card-p2" class="player-hud-card p2">
+        <div class="hud-player-header">
+          <div class="hud-player-name">🔴 <span id="hud-name-p2">Kapal Merah</span></div>
+          <div class="pos-badge" id="hud-pos-p2">Pos 0 / 10</div>
+        </div>
+        <div class="hud-stats-row">
+          <span>✅ Benar: <strong id="hud-correct-p2">0</strong></span>
+          <span>❌ Salah: <strong id="hud-wrong-p2">0</strong></span>
+          <span>⏱️ Waktu: <strong id="hud-time-p2">0.0d</strong></span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Arena Balapan Lintasan Laut Horizontal (10 Pos) -->
+    <div class="race-arena-wrapper">
+      <!-- Hiasan Pulau Tropis, Awan, & Mercusuar di Atas Lintasan -->
+      <div class="arena-scenery">
+        <!-- Pulau Kiri (Start) -->
+        <svg width="150" height="50" viewBox="0 0 150 50">
+          <path d="M10,50 Q60,18 135,50 Z" fill="#22c55e" stroke="#15803d" stroke-width="2" />
+          <path d="M55,36 Q52,20 60,10" fill="none" stroke="#78350f" stroke-width="3.5" stroke-linecap="round" />
+          <path d="M60,10 Q46,6 42,16 M60,10 Q74,6 78,16" fill="none" stroke="#15803d" stroke-width="2.5" stroke-linecap="round" />
+          <rect x="18" y="22" width="44" height="18" rx="4" fill="#fef08a" stroke="#854d0e" stroke-width="2" />
+          <text x="40" y="34" font-size="10" font-weight="900" fill="#713f12" text-anchor="middle">START</text>
+        </svg>
+
+        <!-- Pulau Tengah Nusantara -->
+        <svg width="220" height="50" viewBox="0 0 220 50">
+          <path d="M20,50 Q75,22 125,50 Z" fill="#4ade80" stroke="#15803d" stroke-width="2" />
+          <path d="M105,50 Q155,16 205,50 Z" fill="#22c55e" stroke="#15803d" stroke-width="2" />
+          <text x="112" y="43" font-size="10" font-weight="900" fill="#ffffff" stroke="#14532d" stroke-width="2" paint-order="stroke" text-anchor="middle">KEPULAUAN NUSANTARA</text>
+        </svg>
+
+        <!-- Pulau Kanan + Mercusuar (Finish) -->
+        <svg width="160" height="52" viewBox="0 0 160 52">
+          <path d="M20,52 Q85,22 150,52 Z" fill="#22c55e" stroke="#15803d" stroke-width="2" />
+          <polygon points="112,38 126,38 123,8 115,8" fill="#ffffff" stroke="#b91c1c" stroke-width="1.8" />
+          <rect x="114" y="17" width="10" height="7" fill="#ef4444" />
+          <rect x="113" y="28" width="12" height="7" fill="#ef4444" />
+          <circle cx="119" cy="5" r="4.5" fill="#fef08a" />
+          <rect x="44" y="22" width="52" height="18" rx="4" fill="#facc15" stroke="#854d0e" stroke-width="2" />
+          <text x="70" y="34" font-size="10" font-weight="900" fill="#451a03" text-anchor="middle">FINISH 🏁</text>
+        </svg>
+      </div>
+
+      <!-- Dua Jalur Lintasan Kapal -->
+      <div class="lanes-container">
+        <!-- LINTASAN 1: KAPAL BIRU (PEMAIN 1) -->
+        <div class="race-lane lane-p1">
+          <div class="start-line-marker"></div>
+          <div class="finish-line-marker"></div>
+          <div class="checkpoints-track" id="track-p1">
+            <!-- Pelampung Pos 0-10 diisi via JS -->
+            <!-- Kapal Biru -->
+            <div id="ship-p1" class="ship-runner" style="left: 0%;">
+              <div class="wake-splash"></div>
+              <svg viewBox="0 0 100 72" width="100%" height="100%">
+                <path d="M12,44 L88,44 L74,64 L22,64 Z" fill="#2563eb" stroke="#1e3a8a" stroke-width="3" />
+                <rect x="20" y="48" width="56" height="5" fill="#93c5fd" />
+                <rect x="45" y="10" width="5" height="34" fill="#78350f" />
+                <path d="M50,12 L80,28 L50,40 Z" fill="#ffffff" stroke="#1d4ed8" stroke-width="2.5" />
+                <path d="M22,18 L45,18 L45,30 L22,30 Z" fill="#facc15" />
+                <text x="48" y="60" font-size="10" font-weight="900" fill="#ffffff" text-anchor="middle">TIM 1</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- LINTASAN 2: KAPAL MERAH (PEMAIN 2) -->
+        <div class="race-lane lane-p2">
+          <div class="start-line-marker"></div>
+          <div class="finish-line-marker"></div>
+          <div class="checkpoints-track" id="track-p2">
+            <!-- Pelampung Pos 0-10 diisi via JS -->
+            <!-- Kapal Merah -->
+            <div id="ship-p2" class="ship-runner" style="left: 0%;">
+              <div class="wake-splash"></div>
+              <svg viewBox="0 0 100 72" width="100%" height="100%">
+                <path d="M12,44 L88,44 L74,64 L22,64 Z" fill="#dc2626" stroke="#7f1d1d" stroke-width="3" />
+                <rect x="20" y="48" width="56" height="5" fill="#fca5a5" />
+                <rect x="45" y="10" width="5" height="34" fill="#78350f" />
+                <path d="M50,12 L80,28 L50,40 Z" fill="#ffffff" stroke="#b91c1c" stroke-width="2.5" />
+                <path d="M22,18 L45,18 L45,30 L22,30 Z" fill="#38bdf8" />
+                <text x="48" y="60" font-size="10" font-weight="900" fill="#ffffff" text-anchor="middle">TIM 2</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel Pertanyaan & 4 Tombol Pilihan Jawaban Besar -->
+    <main id="quiz-panel" class="quiz-panel turn-p1">
+      <div id="golden-badge" class="golden-badge">
+        ⚡ BABAK FINAL: GOLDEN QUESTION! (JAWABAN BENAR MAJU 2 LANGKAH!) ⚡
+      </div>
+
+      <div id="question-box" class="question-box">
+        Memuat pertanyaan...
+      </div>
+
+      <div id="options-grid" class="options-grid-2x2">
+        <!-- 4 Tombol Pilihan Jawaban A, B, C, D -->
+      </div>
+
+      <div id="feedback-strip" class="feedback-strip">
+        Sentuh jawaban yang paling tepat sebelum waktu 10 detik habis!
+      </div>
+    </main>
+  </section>
+
+  <!-- ========================================================================
+       3. HALAMAN PEMENANG (WINNER SCREEN)
+       ======================================================================== -->
+  <section id="winner-screen" class="screen">
+    <div class="winner-card">
+      <!-- Piala Emas SVG -->
+      <svg viewBox="0 0 140 110" width="120" height="95" style="margin: 0 auto 6px; display: block;">
+        <path d="M40,15 L100,15 L92,58 C90,74 50,74 48,58 Z" fill="#facc15" stroke="#b45309" stroke-width="4" />
+        <path d="M40,22 C20,22 20,48 44,48" fill="none" stroke="#eab308" stroke-width="6" stroke-linecap="round" />
+        <path d="M100,22 C120,22 120,48 96,48" fill="none" stroke="#eab308" stroke-width="6" stroke-linecap="round" />
+        <rect x="62" y="68" width="16" height="18" fill="#d97706" />
+        <rect x="42" y="86" width="56" height="14" rx="6" fill="#78350f" />
+        <polygon points="70,26 74,37 86,37 76,44 80,55 70,48 60,55 64,44 54,37 66,37" fill="#ffffff" />
+      </svg>
+
+      <h1 class="winner-headline">🏆 SELAMAT! PEMENANG BALAPAN KAPAL PENJELAJAH!</h1>
+      <div id="champion-banner" class="champion-banner p1">
+        🚢 PEMAIN 1 (KAPAL BIRU) JUARA!
+      </div>
+      <p id="winner-reason" style="font-weight: 800; color: #475569; margin-bottom: 18px;"></p>
+
+      <!-- Perbandingan Statistik Kedua Pemain -->
+      <div class="final-comparison-grid">
+        <div class="final-player-box p1">
+          <h3 style="color: var(--p1-dark);">
+            <span>🔵 <span id="end-name-p1">Kapal Biru</span></span>
+            <span id="end-badge-p1"></span>
+          </h3>
+          <div class="final-stat-line"><span>Posisi Akhir Kapal:</span><span id="end-pos-p1">Pos 10 / 10</span></div>
+          <div class="final-stat-line"><span>Total Jawaban Benar:</span><span id="end-correct-p1">0</span></div>
+          <div class="final-stat-line"><span>Total Jawaban Salah:</span><span id="end-wrong-p1">0</span></div>
+          <div class="final-stat-line"><span>Total Waktu Jawab:</span><span id="end-time-p1">0.0 detik</span></div>
+          <div class="final-stat-line" style="border-bottom:none; font-size:1.15rem; color:var(--p1-dark);">
+            <span>Skor Akhir (Poin):</span><span id="end-score-p1">0</span>
+          </div>
+        </div>
+
+        <div class="final-player-box p2">
+          <h3 style="color: var(--p2-dark);">
+            <span>🔴 <span id="end-name-p2">Kapal Merah</span></span>
+            <span id="end-badge-p2"></span>
+          </h3>
+          <div class="final-stat-line"><span>Posisi Akhir Kapal:</span><span id="end-pos-p2">Pos 0 / 10</span></div>
+          <div class="final-stat-line"><span>Total Jawaban Benar:</span><span id="end-correct-p2">0</span></div>
+          <div class="final-stat-line"><span>Total Jawaban Salah:</span><span id="end-wrong-p2">0</span></div>
+          <div class="final-stat-line"><span>Total Waktu Jawab:</span><span id="end-time-p2">0.0 detik</span></div>
+          <div class="final-stat-line" style="border-bottom:none; font-size:1.15rem; color:var(--p2-dark);">
+            <span>Skor Akhir (Poin):</span><span id="end-score-p2">0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="menu-buttons-row">
+        <button id="btn-play-again" class="btn-3d btn-green btn-play-hero">🔁 MAIN LAGI</button>
+        <button id="btn-back-menu" class="btn-3d btn-blue btn-play-hero">🏠 KEMBALI KE MENU</button>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    /**
+     * ==========================================================================
+     * 1. BANK SOAL IPAS KELAS 5 SD (24 SOAL LETAK GEOGRAFIS INDONESIA)
+     * ==========================================================================
+     */
+    const QUESTION_BANK = [
+      {
+        q: "Indonesia terletak di antara dua benua, yaitu...",
+        options: ["Asia dan Australia", "Asia dan Afrika", "Eropa dan Australia", "Afrika dan Amerika"],
+        answer: 0
+      },
+      {
+        q: "Indonesia terletak di antara dua samudra, yaitu...",
+        options: ["Atlantik dan Arktik", "Hindia dan Pasifik", "Pasifik dan Atlantik", "Hindia dan Arktik"],
+        answer: 1
+      },
+      {
+        q: "Benua yang terletak di sebelah selatan Indonesia adalah...",
+        options: ["Asia", "Eropa", "Australia", "Afrika"],
+        answer: 2
+      },
+      {
+        q: "Samudra yang berada di sebelah barat Indonesia adalah...",
+        options: ["Samudra Hindia", "Samudra Atlantik", "Samudra Arktik", "Samudra Selatan"],
+        answer: 0
+      },
+      {
+        q: "Indonesia termasuk ke dalam kawasan...",
+        options: ["Asia Timur", "Asia Tenggara", "Asia Barat", "Asia Tengah"],
+        answer: 1
+      },
+      {
+        q: "Negara yang berbatasan darat dengan Indonesia di Pulau Kalimantan adalah...",
+        options: ["Thailand", "Malaysia", "Filipina", "Singapura"],
+        answer: 1
+      },
+      {
+        q: "Negara yang berada di sebelah timur Indonesia dan berbatasan darat di Pulau Papua adalah...",
+        options: ["Papua Nugini", "Australia", "Malaysia", "Vietnam"],
+        answer: 0
+      },
+      {
+        q: "Indonesia disebut sebagai negara kepulauan karena...",
+        options: ["Memiliki banyak gunung berapi", "Terdiri atas beribu-ribu pulau", "Memiliki banyak sungai panjang", "Dikelilingi oleh gurun pasir"],
+        answer: 1
+      },
+      {
+        q: "Samudra yang berada di sebelah timur laut Indonesia adalah...",
+        options: ["Atlantik", "Hindia", "Pasifik", "Arktik"],
+        answer: 2
+      },
+      {
+        q: "Salah satu keuntungan letak geografis Indonesia adalah...",
+        options: ["Menjadi jalur perdagangan internasional", "Tidak memiliki wilayah laut", "Terisolasi dari negara lain", "Tidak memiliki keragaman budaya"],
+        answer: 0
+      },
+      {
+        q: "Negara yang berbatasan darat langsung dengan Indonesia di Pulau Timor bagian timur adalah...",
+        options: ["Brunei Darussalam", "Timor Leste", "Singapura", "Thailand"],
+        answer: 1
+      },
+      {
+        q: "Negara tetangga Indonesia di sebelah utara Pulau Batam yang menjadi pusat transit pelayaran dunia adalah...",
+        options: ["Singapura", "Laos", "Kamboja", "Myanmar"],
+        answer: 0
+      },
+      {
+        q: "Posisi silang Indonesia menyebabkan wilayah Indonesia dipengaruhi angin muson sehingga memiliki dua musim, yaitu...",
+        options: ["Musim semi dan musim gugur", "Musim hujan dan musim kemarau", "Musim dingin dan musim panas", "Musim salju dan musim semi"],
+        answer: 1
+      },
+      {
+        q: "Benua yang terletak di sebelah barat laut (utara) Indonesia adalah...",
+        options: ["Benua Australia", "Benua Amerika", "Benua Asia", "Benua Eropa"],
+        answer: 2
+      },
+      {
+        q: "Selat strategis yang menghubungkan Samudra Hindia dan Laut Tiongkok Selatan di antara Pulau Sumatra dan Semenanjung Malaya adalah...",
+        options: ["Selat Sunda", "Selat Bali", "Selat Malaka", "Selat Makassar"],
+        answer: 2
+      },
+      {
+        q: "Dampak positif letak geografis Indonesia di bidang sosial budaya adalah...",
+        options: ["Hilangnya bahasa daerah", "Terjadinya akulturasi dan keragaman budaya", "Berkurangnya wisatawan asing", "Tertutupnya hubungan luar negeri"],
+        answer: 1
+      },
+      {
+        q: "Wilayah perairan Indonesia yang sangat luas membuat Indonesia juga dikenal dengan sebutan...",
+        options: ["Negara kontinental", "Negara maritim", "Negara gurun", "Negara kutub"],
+        answer: 1
+      },
+      {
+        q: "Negara tetangga yang berada di sebelah utara Pulau Sulawesi dan Kepulauan Maluku adalah...",
+        options: ["Filipina", "Australia", "India", "Jepang"],
+        answer: 0
+      },
+      {
+        q: "Garis khayal yang membelah bumi menjadi bagian utara dan selatan serta melintasi Kota Pontianak di Indonesia adalah...",
+        options: ["Garis bujur barat", "Garis khatulistiwa (ekuator)", "Garis kutub utara", "Garis balik selatan"],
+        answer: 1
+      },
+      {
+        q: "Karena berada di jalur pelayaran dunia, banyak kapal dagang singgah di pelabuhan Indonesia. Hal ini sangat menguntungkan di bidang...",
+        options: ["Ekonomi dan perdagangan", "Pertambangan es", "Olahraga musim dingin", "Pertanian gurun"],
+        answer: 0
+      },
+      {
+        q: "Batas wilayah sebelah selatan Indonesia berbatasan langsung dengan...",
+        options: ["Benua Asia dan Laut Tiongkok Selatan", "Samudra Hindia dan Benua Australia", "Samudra Pasifik dan Filipina", "Malaysia dan Singapura"],
+        answer: 1
+      },
+      {
+        q: "Pulau besar di bagian paling timur Indonesia yang berbatasan darat dengan Papua Nugini adalah...",
+        options: ["Pulau Sumatra", "Pulau Sulawesi", "Pulau Papua", "Pulau Jawa"],
+        answer: 2
+      },
+      {
+        q: "Salah satu hal yang perlu diwaspadai akibat letak geografis Indonesia yang terbuka bagi lalu lintas dunia adalah...",
+        options: ["Masuknya budaya asing yang tidak sesuai nilai Pancasila", "Bertambahnya hasil laut nelayan", "Ramainya pelabuhan dagang", "Meningkatnya kerja sama antarnegara"],
+        answer: 0
+      },
+      {
+        q: "Letak Indonesia yang berada di antara dua benua dan dua samudra sering disebut sebagai...",
+        options: ["Posisi silang Indonesia", "Posisi kutub Indonesia", "Posisi terpencil Indonesia", "Posisi daratan tinggi"],
+        answer: 0
+      }
+    ];
+
+    /**
+     * ==========================================================================
+     * 2. MODUL EFEK SUARA SINTETIS (WEB AUDIO API - 100% OFFLINE)
+     * ==========================================================================
+     */
+    const SoundFX = (() => {
+      let ctx = null;
+      let muted = false;
+
+      function ensureCtx() {
+        if (!ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) ctx = new AudioCtx();
+        }
+        if (ctx && ctx.state === 'suspended') ctx.resume();
+      }
+
+      function playClick() {
+        if (muted) return;
+        try {
+          ensureCtx();
+          if (!ctx) return;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(540, ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(820, ctx.currentTime + 0.07);
+          gain.gain.setValueAtTime(0.16, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.08);
+        } catch (e) {}
+      }
+
+      function playTick() {
+        if (muted) return;
+        try {
+          ensureCtx();
+          if (!ctx) return;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(880, ctx.currentTime);
+          gain.gain.setValueAtTime(0.09, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.05);
+        } catch (e) {}
+      }
+
+      // Suara Jawaban Benar + Terompet Kapal Melaju
+      function playShipBoost() {
+        if (muted) return;
+        try {
+          ensureCtx();
+          if (!ctx) return;
+          const now = ctx.currentTime;
+          const notes = [523.25, 659.25, 783.99, 1046.50];
+          notes.forEach((f, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(f, now + idx * 0.08);
+            gain.gain.setValueAtTime(0.22, now + idx * 0.08);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.3);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + idx * 0.08);
+            osc.stop(now + idx * 0.08 + 0.31);
+          });
+        } catch (e) {}
+      }
+
+      function playWrong() {
+        if (muted) return;
+        try {
+          ensureCtx();
+          if (!ctx) return;
+          const now = ctx.currentTime;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(230, now);
+          osc.frequency.linearRampToValueAtTime(165, now + 0.28);
+          gain.gain.setValueAtTime(0.16, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.31);
+        } catch (e) {}
+      }
+
+      // Fanfare Pemenang + Efek Tepuk Tangan Meriah
+      function playWinnerApplause() {
+        if (muted) return;
+        try {
+          ensureCtx();
+          if (!ctx) return;
+          const now = ctx.currentTime;
+          const fanfare = [523.25, 659.25, 783.99, 1046.5, 783.99, 1046.5];
+          const times = [0, 0.14, 0.28, 0.44, 0.68, 0.86];
+          fanfare.forEach((freq, i) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now + times[i]);
+            gain.gain.setValueAtTime(0.24, now + times[i]);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + times[i] + 0.35);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + times[i]);
+            osc.stop(now + times[i] + 0.36);
+          });
+
+          // Simulasi Tepuk Tangan (14 tepukan beruntun)
+          for (let i = 0; i < 14; i++) {
+            const delay = 0.2 + i * 0.11 + Math.random() * 0.03;
+            const bufLen = Math.floor(ctx.sampleRate * 0.065);
+            const buffer = ctx.createBuffer(1, bufLen, ctx.sampleRate);
+            const ch = buffer.getChannelData(0);
+            for (let j = 0; j < bufLen; j++) {
+              ch[j] = (Math.random() * 2 - 1) * Math.exp(-j / (ctx.sampleRate * 0.015));
+            }
+            const src = ctx.createBufferSource();
+            src.buffer = buffer;
+
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.value = 1050 + Math.random() * 450;
+
+            const gain = ctx.createGain();
+            gain.gain.setValueAtTime(0.24, now + delay);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + delay + 0.065);
+
+            src.connect(filter);
+            filter.connect(gain);
+            gain.connect(ctx.destination);
+            src.start(now + delay);
+          }
+        } catch (e) {}
+      }
+
+      function toggleMute() {
+        muted = !muted;
+        return muted;
+      }
+
+      return { playClick, playTick, playShipBoost, playWrong, playWinnerApplause, toggleMute };
+    })();
+
+    /**
+     * ==========================================================================
+     * 3. KONFETI KEMENANGAN
+     * ==========================================================================
+     */
+    const Confetti = (() => {
+      const canvas = document.getElementById('confetti-canvas');
+      const ctx = canvas.getContext('2d');
+      let pieces = [];
+      let rafId = null;
+
+      function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      window.addEventListener('resize', resize);
+      resize();
+
+      function burst(amount = 140) {
+        const colors = ['#2563eb', '#dc2626', '#facc15', '#22c55e', '#38bdf8', '#a855f7'];
+        for (let i = 0; i < amount; i++) {
+          pieces.push({
+            x: canvas.width * (0.15 + Math.random() * 0.7),
+            y: canvas.height * 0.35,
+            vx: (Math.random() - 0.5) * 16,
+            vy: -Math.random() * 14 - 4,
+            w: Math.random() * 10 + 6,
+            h: Math.random() * 6 + 4,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            rot: Math.random() * 360,
+            vRot: (Math.random() - 0.5) * 14,
+            life: 130 + Math.random() * 40
+          });
+        }
+        if (!rafId) render();
+      }
+
+      function render() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        pieces.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.34;
+          p.rot += p.vRot;
+          p.life -= 1;
+
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate((p.rot * Math.PI) / 180);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+          ctx.restore();
+        });
+        pieces = pieces.filter(p => p.life > 0 && p.y < canvas.height + 30);
+        if (pieces.length > 0) {
+          rafId = requestAnimationFrame(render);
+        } else {
+          rafId = null;
+        }
+      }
+
+      return { burst };
+    })();
+
+    /**
+     * ==========================================================================
+     * 4. LOGIKA UTAMA BALAPAN 2 PEMAIN (ADIL, TIMER 10S, GOLDEN QUESTION)
+     * ==========================================================================
+     */
+    const FINISH_POS = 10;
+    const TURN_SECONDS = 10;
+
+    const State = {
+      p1: { name: 'Kapal Biru', pos: 0, correct: 0, wrong: 0, timeSpent: 0, score: 0 },
+      p2: { name: 'Kapal Merah', pos: 0, correct: 0, wrong: 0, timeSpent: 0, score: 0 },
+      round: 1,
+      activePlayer: 1, // 1 = Pemain 1 (Biru), 2 = Pemain 2 (Merah)
+      isGoldenRound: false,
+      questionPool: [],
+      currentQuestion: null,
+      timerInterval: null,
+      turnStartTime: 0,
+      remainingSeconds: TURN_SECONDS,
+      isAnsweringLocked: false
+    };
+
+    // Helper Acak Fisher-Yates
+    function shuffle(list) {
+      const arr = [...list];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function getNextQuestion() {
+      if (State.questionPool.length === 0) {
+        State.questionPool = shuffle(QUESTION_BANK);
+      }
+      return State.questionPool.pop();
+    }
+
+    function switchScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    function openModal(id) {
+      SoundFX.playClick();
+      document.getElementById(id).classList.add('open');
+    }
+
+    function closeModal(id) {
+      SoundFX.playClick();
+      document.getElementById(id).classList.remove('open');
+    }
+
+    // Membuat 11 titik pelampung (Pos 0 START sampai Pos 10 FINISH) di kedua jalur
+    function buildTrackCheckpoints() {
+      ['p1', 'p2'].forEach(key => {
+        const track = document.getElementById(`track-${key}`);
+        // Hapus node lama kecuali elemen kapal
+        track.querySelectorAll('.checkpoint-node').forEach(n => n.remove());
+
+        for (let i = 0; i <= FINISH_POS; i++) {
+          const node = document.createElement('div');
+          node.className = 'checkpoint-node';
+          node.id = `node-${key}-${i}`;
+          if (i === 0) {
+            node.classList.add('start-node');
+            node.textContent = 'START';
+          } else if (i === FINISH_POS) {
+            node.classList.add('finish-node');
+            node.textContent = '🏁';
+          } else {
+            node.textContent = i;
+          }
+          track.appendChild(node);
+        }
+      });
+    }
+
+    function startNewGame() {
+      SoundFX.playClick();
+      clearTimer();
+
+      const rawP1 = document.getElementById('input-p1-name').value.trim();
+      const rawP2 = document.getElementById('input-p2-name').value.trim();
+
+      State.p1 = {
+        name: rawP1 || 'Kapal Biru',
+        pos: 0,
+        correct: 0,
+        wrong: 0,
+        timeSpent: 0,
+        score: 0
+      };
+      State.p2 = {
+        name: rawP2 || 'Kapal Merah',
+        pos: 0,
+        correct: 0,
+        wrong: 0,
+        timeSpent: 0,
+        score: 0
+      };
+
+      State.round = 1;
+      State.activePlayer = 1;
+      State.isGoldenRound = false;
+      State.questionPool = shuffle(QUESTION_BANK);
+      State.isAnsweringLocked = false;
+
+      document.getElementById('hud-name-p1').textContent = State.p1.name;
+      document.getElementById('hud-name-p2').textContent = State.p2.name;
+
+      buildTrackCheckpoints();
+      updateArenaAndHUD();
+      switchScreen('game-screen');
+      beginTurn(true);
+    }
+
+    function updateArenaAndHUD() {
+      // Update HUD Pemain 1
+      document.getElementById('hud-pos-p1').textContent = `Pos ${State.p1.pos} / ${FINISH_POS}`;
+      document.getElementById('hud-correct-p1').textContent = State.p1.correct;
+      document.getElementById('hud-wrong-p1').textContent = State.p1.wrong;
+      document.getElementById('hud-time-p1').textContent = `${State.p1.timeSpent.toFixed(1)}d`;
+
+      // Update HUD Pemain 2
+      document.getElementById('hud-pos-p2').textContent = `Pos ${State.p2.pos} / ${FINISH_POS}`;
+      document.getElementById('hud-correct-p2').textContent = State.p2.correct;
+      document.getElementById('hud-wrong-p2').textContent = State.p2.wrong;
+      document.getElementById('hud-time-p2').textContent = `${State.p2.timeSpent.toFixed(1)}d`;
+
+      // Update Posisi Kapal Horizontal (0% sampai 100%)
+      const pct1 = (State.p1.pos / FINISH_POS) * 100;
+      const pct2 = (State.p2.pos / FINISH_POS) * 100;
+      document.getElementById('ship-p1').style.left = `${pct1}%`;
+      document.getElementById('ship-p2').style.left = `${pct2}%`;
+
+      // Tandai pelampung pos yang sudah dilewati
+      for (let i = 1; i <= FINISH_POS; i++) {
+        const n1 = document.getElementById(`node-p1-${i}`);
+        const n2 = document.getElementById(`node-p2-${i}`);
+        if (n1) n1.classList.toggle('passed-p1', i <= State.p1.pos);
+        if (n2) n2.classList.toggle('passed-p2', i <= State.p2.pos);
+      }
+
+      // Update Indikator Ronde & Kartu Aktif
+      document.getElementById('hud-round').textContent = `RONDE ${State.round}`;
+      const cardP1 = document.getElementById('hud-card-p1');
+      const cardP2 = document.getElementById('hud-card-p2');
+      const turnBanner = document.getElementById('turn-banner');
+      const quizPanel = document.getElementById('quiz-panel');
+
+      if (State.activePlayer === 1) {
+        cardP1.classList.add('active-turn');
+        cardP2.classList.remove('active-turn');
+        turnBanner.className = 'turn-banner p1';
+        turnBanner.textContent = `🔵 GILIRAN: ${State.p1.name.toUpperCase()}`;
+        quizPanel.classList.remove('turn-p2');
+        quizPanel.classList.add('turn-p1');
+      } else {
+        cardP2.classList.add('active-turn');
+        cardP1.classList.remove('active-turn');
+        turnBanner.className = 'turn-banner p2';
+        turnBanner.textContent = `🔴 GILIRAN: ${State.p2.name.toUpperCase()}`;
+        quizPanel.classList.remove('turn-p1');
+        quizPanel.classList.add('turn-p2');
+      }
+
+      // Mode Babak Final (Golden Question)
+      const goldenBadge = document.getElementById('golden-badge');
+      if (State.isGoldenRound) {
+        quizPanel.classList.add('golden-mode');
+        goldenBadge.classList.add('show');
+      } else {
+        quizPanel.classList.remove('golden-mode');
+        goldenBadge.classList.remove('show');
+      }
+    }
+
+    function showTurnToast(playerNum) {
+      const overlay = document.getElementById('turn-toast-overlay');
+      const box = document.getElementById('turn-toast-box');
+      const pName = playerNum === 1 ? State.p1.name.toUpperCase() : State.p2.name.toUpperCase();
+
+      box.className = `turn-toast-box ${playerNum === 1 ? 'p1' : 'p2'}`;
+      box.innerHTML = playerNum === 1
+        ? `🔵 GILIRAN PEMAIN 1<br><span style="font-size:0.75em;">(${pName})</span>`
+        : `🔴 GILIRAN PEMAIN 2<br><span style="font-size:0.75em;">(${pName})</span>`;
+
+      overlay.classList.remove('show');
+      void overlay.offsetWidth;
+      overlay.classList.add('show');
+    }
+
+    function beginTurn(showToast = true) {
+      clearTimer();
+      State.isAnsweringLocked = false;
+      updateArenaAndHUD();
+
+      if (showToast) {
+        showTurnToast(State.activePlayer);
+      }
+
+      // Ambil pertanyaan baru & tampilkan
+      const qObj = getNextQuestion();
+      State.currentQuestion = qObj;
+
+      document.getElementById('question-box').textContent = qObj.q;
+      const grid = document.getElementById('options-grid');
+      grid.innerHTML = '';
+
+      const letters = ['A', 'B', 'C', 'D'];
+      qObj.options.forEach((optText, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'answer-btn';
+        btn.innerHTML = `<span class="opt-letter">${letters[idx]}</span><span>${optText}</span>`;
+        btn.addEventListener('click', () => handleAnswerSubmit(idx, btn));
+        grid.appendChild(btn);
+      });
+
+      const feedback = document.getElementById('feedback-strip');
+      feedback.className = 'feedback-strip';
+      const stepValue = State.isGoldenRound ? 2 : 1;
+      feedback.textContent = `Ayo ${State.activePlayer === 1 ? State.p1.name : State.p2.name}! Jawab benar untuk maju ${stepValue} pos!`;
+
+      startCountdownTimer();
+    }
+
+    function clearTimer() {
+      if (State.timerInterval) {
+        clearInterval(State.timerInterval);
+        State.timerInterval = null;
+      }
+    }
+
+    function startCountdownTimer() {
+      State.remainingSeconds = TURN_SECONDS;
+      State.turnStartTime = performance.now();
+      let lastWholeSecond = TURN_SECONDS;
+
+      const fillEl = document.getElementById('timer-fill');
+      const digitsEl = document.getElementById('timer-digits');
+
+      fillEl.style.width = '100%';
+      fillEl.className = 'timer-fill';
+      digitsEl.textContent = `${TURN_SECONDS}s`;
+      digitsEl.classList.remove('danger-pulse');
+
+      State.timerInterval = setInterval(() => {
+        if (State.isAnsweringLocked) {
+          clearTimer();
+          return;
+        }
+
+        const elapsed = (performance.now() - State.turnStartTime) / 1000;
+        const left = Math.max(0, TURN_SECONDS - elapsed);
+        State.remainingSeconds = left;
+
+        const pct = (left / TURN_SECONDS) * 100;
+        fillEl.style.width = `${pct}%`;
+
+        const ceilSec = Math.ceil(left);
+        digitsEl.textContent = `${ceilSec}s`;
+
+        if (ceilSec <= 3 && ceilSec > 0) {
+          fillEl.className = 'timer-fill danger';
+          digitsEl.classList.add('danger-pulse');
+          if (ceilSec < lastWholeSecond) {
+            SoundFX.playTick();
+          }
+        } else if (ceilSec <= 6) {
+          fillEl.className = 'timer-fill warning';
+        }
+        lastWholeSecond = ceilSec;
+
+        if (left <= 0) {
+          clearTimer();
+          handleTimeOut();
+        }
+      }, 100);
+    }
+
+    function handleTimeOut() {
+      if (State.isAnsweringLocked) return;
+      State.isAnsweringLocked = true;
+
+      const player = State.activePlayer === 1 ? State.p1 : State.p2;
+      player.wrong += 1;
+      player.timeSpent += TURN_SECONDS;
+
+      SoundFX.playWrong();
+      disableAllOptionButtons(State.currentQuestion.answer, -1);
+
+      const shipEl = document.getElementById(`ship-p${State.activePlayer}`);
+      shipEl.classList.remove('shake');
+      void shipEl.offsetWidth;
+      shipEl.classList.add('shake');
+
+      const feedback = document.getElementById('feedback-strip');
+      feedback.className = 'feedback-strip error';
+      feedback.textContent = `⏰ Waktu habis! Belum tepat, tetap semangat! Kapal tidak bergerak.`;
+
+      updateArenaAndHUD();
+      setTimeout(advanceTurnOrRound, 1850);
+    }
+
+    function handleAnswerSubmit(selectedIdx, btnElement) {
+      if (State.isAnsweringLocked) return;
+      State.isAnsweringLocked = true;
+      clearTimer();
+
+      const elapsed = Math.min(TURN_SECONDS, Math.max(0.2, (performance.now() - State.turnStartTime) / 1000));
+      const player = State.activePlayer === 1 ? State.p1 : State.p2;
+      player.timeSpent += elapsed;
+
+      const isCorrect = (selectedIdx === State.currentQuestion.answer);
+      disableAllOptionButtons(State.currentQuestion.answer, selectedIdx);
+
+      const feedback = document.getElementById('feedback-strip');
+      const shipEl = document.getElementById(`ship-p${State.activePlayer}`);
+
+      if (isCorrect) {
+        const steps = State.isGoldenRound ? 2 : 1;
+        player.correct += 1;
+        player.score += steps * 10;
+        player.pos = Math.min(FINISH_POS, player.pos + steps);
+
+        SoundFX.playShipBoost();
+
+        // Animasi Kapal Melaju & Cipratan Ombak
+        shipEl.classList.remove('boosting');
+        void shipEl.offsetWidth;
+        shipEl.classList.add('boosting');
+
+        feedback.className = 'feedback-strip success';
+        feedback.textContent = State.isGoldenRound
+          ? `🌟 GOLDEN ANSWER! Hebat! ${player.name} melaju 2 pos ke Pos ${player.pos}!`
+          : `✅ Hebat! Jawaban Benar! ${player.name} maju 1 pos ke Pos ${player.pos}!`;
+      } else {
+        player.wrong += 1;
+        SoundFX.playWrong();
+
+        shipEl.classList.remove('shake');
+        void shipEl.offsetWidth;
+        shipEl.classList.add('shake');
+
+        feedback.className = 'feedback-strip error';
+        feedback.textContent = `❌ Belum tepat, tetap semangat! Kapal tidak bergerak.`;
+      }
+
+      updateArenaAndHUD();
+      setTimeout(advanceTurnOrRound, 1850);
+    }
+
+    function disableAllOptionButtons(correctIdx, chosenIdx) {
+      const buttons = document.querySelectorAll('#options-grid .answer-btn');
+      buttons.forEach((b, i) => {
+        b.disabled = true;
+        if (i === correctIdx) {
+          b.classList.add('correct-choice');
+        } else if (i === chosenIdx) {
+          b.classList.add('wrong-choice');
+        }
+      });
+    }
+
+    /**
+     * ==========================================================================
+     * 5. SISTEM PERGILIRAN ADIL & PENENTUAN PEMENANG
+     * ==========================================================================
+     */
+    function advanceTurnOrRound() {
+      // Jika baru selesai giliran Pemain 1, wajib lanjut ke giliran Pemain 2 di ronde yang sama!
+      if (State.activePlayer === 1) {
+        State.activePlayer = 2;
+        beginTurn(true);
+        return;
+      }
+
+      // Kedua pemain telah mendapat kesempatan yang sama pada ronde ini.
+      // Cek apakah salah satu atau kedua kapal sudah mencapai garis FINISH (Pos 10).
+      const p1Finished = State.p1.pos >= FINISH_POS;
+      const p2Finished = State.p2.pos >= FINISH_POS;
+
+      if (p1Finished || p2Finished) {
+        declareWinner(p1Finished, p2Finished);
+        return;
+      }
+
+      // Lanjut ke Ronde Berikutnya
+      State.round += 1;
+      State.activePlayer = 1;
+
+      // Aktifkan Babak Final (GOLDEN QUESTION) jika salah satu kapal sudah mendekati FINISH (Pos >= 8)
+      if (State.p1.pos >= 8 || State.p2.pos >= 8) {
+        State.isGoldenRound = true;
+      }
+
+      beginTurn(true);
+    }
+
+    function declareWinner(p1Finished, p2Finished) {
+      clearTimer();
+      SoundFX.playWinnerApplause();
+      Confetti.burst(160);
+
+      let winnerCode = 0; // 1 = P1, 2 = P2, 0 = Seri
+      let reasonText = '';
+
+      if (p1Finished && !p2Finished) {
+        winnerCode = 1;
+        reasonText = `${State.p1.name} berhasil mencapai garis FINISH (Pos 10) lebih dulu!`;
+      } else if (p2Finished && !p1Finished) {
+        winnerCode = 2;
+        reasonText = `${State.p2.name} berhasil mencapai garis FINISH (Pos 10) lebih dulu!`;
+      } else {
+        // Keduanya mencapai FINISH pada ronde yang sama -> bandingkan jawaban benar, lalu waktu tercepat
+        if (State.p1.correct > State.p2.correct) {
+          winnerCode = 1;
+          reasonText = `Kedua kapal tiba di FINISH pada ronde yang sama, namun ${State.p1.name} unggul jumlah jawaban benar (${State.p1.correct} vs ${State.p2.correct})!`;
+        } else if (State.p2.correct > State.p1.correct) {
+          winnerCode = 2;
+          reasonText = `Kedua kapal tiba di FINISH pada ronde yang sama, namun ${State.p2.name} unggul jumlah jawaban benar (${State.p2.correct} vs ${State.p1.correct})!`;
+        } else if (State.p1.timeSpent < State.p2.timeSpent) {
+          winnerCode = 1;
+          reasonText = `Skor & jawaban benar sama kuat! ${State.p1.name} menang berkat total waktu menjawab lebih cepat (${State.p1.timeSpent.toFixed(1)}d vs ${State.p2.timeSpent.toFixed(1)}d)!`;
+        } else if (State.p2.timeSpent < State.p1.timeSpent) {
+          winnerCode = 2;
+          reasonText = `Skor & jawaban benar sama kuat! ${State.p2.name} menang berkat total waktu menjawab lebih cepat (${State.p2.timeSpent.toFixed(1)}d vs ${State.p1.timeSpent.toFixed(1)}d)!`;
+        } else {
+          winnerCode = 0;
+          reasonText = `Pertandingan super sengit! Kedua kapal mencapai FINISH dengan catatan yang sama kuat!`;
+        }
+      }
+
+      const banner = document.getElementById('champion-banner');
+      if (winnerCode === 1) {
+        banner.className = 'champion-banner p1';
+        banner.textContent = `🔵 ${State.p1.name.toUpperCase()} JUARA!`;
+        document.getElementById('end-badge-p1').textContent = '👑 JUARA 1';
+        document.getElementById('end-badge-p2').textContent = '🥈 JUARA 2';
+      } else if (winnerCode === 2) {
+        banner.className = 'champion-banner p2';
+        banner.textContent = `🔴 ${State.p2.name.toUpperCase()} JUARA!`;
+        document.getElementById('end-badge-p1').textContent = '🥈 JUARA 2';
+        document.getElementById('end-badge-p2').textContent = '👑 JUARA 1';
+      } else {
+        banner.className = 'champion-banner draw';
+        banner.textContent = `🤝 PERTANDINGAN SERI — KEDUANYA JUARA!`;
+        document.getElementById('end-badge-p1').textContent = '👑 JUARA';
+        document.getElementById('end-badge-p2').textContent = '👑 JUARA';
+      }
+
+      document.getElementById('winner-reason').textContent = reasonText;
+
+      // Isi Statistik Lengkap Kedua Pemain
+      document.getElementById('end-name-p1').textContent = State.p1.name;
+      document.getElementById('end-pos-p1').textContent = `Pos ${State.p1.pos} / ${FINISH_POS}`;
+      document.getElementById('end-correct-p1').textContent = `${State.p1.correct} soal`;
+      document.getElementById('end-wrong-p1').textContent = `${State.p1.wrong} soal`;
+      document.getElementById('end-time-p1').textContent = `${State.p1.timeSpent.toFixed(1)} detik`;
+      document.getElementById('end-score-p1').textContent = `${State.p1.score} Poin`;
+
+      document.getElementById('end-name-p2').textContent = State.p2.name;
+      document.getElementById('end-pos-p2').textContent = `Pos ${State.p2.pos} / ${FINISH_POS}`;
+      document.getElementById('end-correct-p2').textContent = `${State.p2.correct} soal`;
+      document.getElementById('end-wrong-p2').textContent = `${State.p2.wrong} soal`;
+      document.getElementById('end-time-p2').textContent = `${State.p2.timeSpent.toFixed(1)} detik`;
+      document.getElementById('end-score-p2').textContent = `${State.p2.score} Poin`;
+
+      switchScreen('winner-screen');
+    }
+
+    /**
+     * ==========================================================================
+     * 6. INISIALISASI EVENT LISTENER
+     * ==========================================================================
+     */
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('btn-start-race').addEventListener('click', startNewGame);
+      document.getElementById('btn-play-again').addEventListener('click', startNewGame);
+      document.getElementById('btn-restart-ingame').addEventListener('click', startNewGame);
+
+      document.getElementById('btn-back-menu').addEventListener('click', () => {
+        SoundFX.playClick();
+        clearTimer();
+        switchScreen('menu-screen');
+      });
+
+      document.getElementById('btn-home-ingame').addEventListener('click', () => {
+        SoundFX.playClick();
+        clearTimer();
+        switchScreen('menu-screen');
+      });
+
+      document.getElementById('btn-open-guide').addEventListener('click', () => openModal('modal-guide'));
+      document.getElementById('btn-open-rules').addEventListener('click', () => openModal('modal-rules'));
+
+      const btnMute = document.getElementById('btn-mute');
+      btnMute.addEventListener('click', () => {
+        const isMuted = SoundFX.toggleMute();
+        btnMute.textContent = isMuted ? '🔇' : '🔊';
+      });
+    });
+  </script>
+</body>
+</html>
